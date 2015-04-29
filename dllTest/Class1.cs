@@ -6,6 +6,11 @@ using System.Threading.Tasks;
 
 namespace dllTest
 {
+    public class Point
+    {
+        public int x { get; set; }
+        public int y { get; set; }
+    }
     /// <summary>
     /// 表示一个棋盘局面
     /// </summary>
@@ -86,6 +91,28 @@ namespace dllTest
                      }
                  }
              return res;
+        }
+        public Dictionary<string, Status> nextStep2(bool IsMe)
+        {
+            Dictionary<string, Status> res = new Dictionary<string, Status>();
+            for (Int16 i = 1; i < 18; i++)
+                for (Int16 j = 1; j < 18; j++)
+                    if (s[i, j] == 0 && (s[i - 1, j - 1] != 0 | s[i - 1, j] != 0 | s[i - 1, j + 1] != 0 | s[i, j - 1] != 0 | s[i, j + 1] != 0 | s[i + 1, j - 1] != 0 | s[i + 1, j] != 0 | s[i + 1, j + 1] != 0))
+                    {
+                        res.Add(myTransmit(i) + myTransmit(j), this.next(i, j, IsMe));
+                    }
+            return res;
+        }
+        public Dictionary<string, Point> nextStep3(bool IsMe)
+        {
+            Dictionary<string, Point> res = new Dictionary<string, Point>();
+            for (Int16 i = 1; i < 18; i++)
+                for (Int16 j = 1; j < 18; j++)
+                    if (s[i, j] == 0 && (s[i - 1, j - 1] != 0 | s[i - 1, j] != 0 | s[i - 1, j + 1] != 0 | s[i, j - 1] != 0 | s[i, j + 1] != 0 | s[i + 1, j - 1] != 0 | s[i + 1, j] != 0 | s[i + 1, j + 1] != 0))
+                    {
+                        res.Add(myTransmit(i) + myTransmit(j), new Point { x=i,y=j});
+                    }
+            return res;
         }
         //public List<Status> RealNext(bool IsMe)
         //{
@@ -409,7 +436,7 @@ namespace dllTest
         {
             if (this.parent == null)
                 return "";
-            else return(this.data.compare(parent.data));
+            else return this.step;//(this.data.compare(parent.data));
         }
     }
     public class Move
@@ -436,15 +463,17 @@ namespace dllTest
             }
             else
             {
-                foreach (Status st in node.data.nextStep(layel % 2 == 0))
+                foreach (var st in node.data.nextStep2(layel % 2 == 0))//node.data.nextStep(layel % 2 == 0))
                 {
                     for (Int16 i = 1; i < 18; i++)
                     {
                         for (Int16 j = 1; j < 18; j++)
                         {
-                            if (st.s[i, j] == 0 && (st.s[i - 1, j - 1] != 0 | st.s[i - 1, j] != 0 | st.s[i - 1, j + 1] != 0 | st.s[i, j - 1] != 0 | st.s[i, j + 1] != 0 | st.s[i + 1, j - 1] != 0 | st.s[i + 1, j] != 0 | st.s[i + 1, j + 1] != 0))
+                            if (st.Value.s[i, j] == 0 && (st.Value.s[i - 1, j - 1] != 0 | st.Value.s[i - 1, j] != 0 | st.Value.s[i - 1, j + 1] != 0 |
+                                st.Value.s[i, j - 1] != 0 | st.Value.s[i, j + 1] != 0 | st.Value.s[i + 1, j - 1] != 0 | st.Value.s[i + 1, j] != 0 |
+                                st.Value.s[i + 1, j + 1] != 0))
                             {
-                                Node nst = new Node(node, st.next(i, j, layel%2==0),Status.myTransmit(i)+Status.myTransmit(j));
+                                Node nst = new Node(node, st.Value.next(i, j, layel % 2 == 0), st.Key+Status.myTransmit(i) + Status.myTransmit(j));
                                 node.AddSub(nst);
                                 CreateTree(nst, (Int16)(layel - 1));
                                 //alpha-beta  3.30很可能不对。
