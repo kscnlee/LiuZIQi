@@ -61,6 +61,26 @@ namespace dllTest
             return next;
         }
         /// <summary>
+        /// 下两个子后生成的新局面
+        /// </summary>
+        /// <param name="x1">第一个新子的x坐标</param>
+        /// <param name="y1">第一个新子的y坐标</param>
+        /// <param name="x2">第二个新子的x坐标</param>
+        /// <param name="y2">第二个新子的y坐标</param>
+        /// <param name="IsMe">是自己落子还是对方落子</param>
+        /// <returns></returns>
+        public Status realNext(Int16 x1, Int16 y1, Int16 x2, Int16 y2, bool IsMe)
+        {
+            Status next = new Status();
+            for (int i = 0; i < 19; i++)
+                for (int j = 0; j < 19; j++)
+                    next.s[i, j] = this.s[i, j];
+
+            next.s[x1, y1] = IsMe ? (sbyte)1 : (sbyte)(-1);
+            next.s[x2, y2] = IsMe ? (sbyte)1 : (sbyte)(-1);
+            return next;
+        }
+        /// <summary>
         /// 下一个子后可能生成的所有新局面
         /// </summary>
         /// <param name="IsMe">是自己落子还是对方落子</param>
@@ -92,17 +112,11 @@ namespace dllTest
                  }
              return res;
         }
-        public Dictionary<string, Status> nextStep2(bool IsMe)
-        {
-            Dictionary<string, Status> res = new Dictionary<string, Status>();
-            for (Int16 i = 1; i < 18; i++)
-                for (Int16 j = 1; j < 18; j++)
-                    if (s[i, j] == 0 && (s[i - 1, j - 1] != 0 | s[i - 1, j] != 0 | s[i - 1, j + 1] != 0 | s[i, j - 1] != 0 | s[i, j + 1] != 0 | s[i + 1, j - 1] != 0 | s[i + 1, j] != 0 | s[i + 1, j + 1] != 0))
-                    {
-                        res.Add(myTransmit(i) + myTransmit(j), this.next(i, j, IsMe));
-                    }
-            return res;
-        }
+      /// <summary>
+        /// 下一个子后可能生成的所有新局面
+      /// </summary>
+      /// <param name="IsMe">无意义</param>
+      /// <returns>所以新落子点的集合</returns>
         public Dictionary<string, Point> nextStep3(bool IsMe)
         {
             Dictionary<string, Point> res = new Dictionary<string, Point>();
@@ -463,17 +477,20 @@ namespace dllTest
             }
             else
             {
-                foreach (var st in node.data.nextStep2(layel % 2 == 0))//node.data.nextStep(layel % 2 == 0))
+                foreach (var st in node.data.nextStep3(layel % 2 == 0))//node.data.nextStep(layel % 2 == 0))
                 {
                     for (Int16 i = 1; i < 18; i++)
                     {
                         for (Int16 j = 1; j < 18; j++)
                         {
-                            if (st.Value.s[i, j] == 0 && (st.Value.s[i - 1, j - 1] != 0 | st.Value.s[i - 1, j] != 0 | st.Value.s[i - 1, j + 1] != 0 |
-                                st.Value.s[i, j - 1] != 0 | st.Value.s[i, j + 1] != 0 | st.Value.s[i + 1, j - 1] != 0 | st.Value.s[i + 1, j] != 0 |
-                                st.Value.s[i + 1, j + 1] != 0))
+                            sbyte memo = node.data.s[(Int16)st.Value.x, (Int16)st.Value.y];
+                            node.data.s[(Int16)st.Value.x, (Int16)st.Value.y] = layel % 2 == 0 ? (SByte)1 : (SByte)(-1);
+                            Status tem = node.data; //node.data.next((Int16)st.Value.x, (Int16)st.Value.y, layel % 2 == 0);
+                            if (tem.s[i, j] == 0 && (tem.s[i - 1, j - 1] != 0 | tem.s[i - 1, j] != 0 | tem.s[i - 1, j + 1] != 0 |
+                                tem.s[i, j - 1] != 0 | tem.s[i, j + 1] != 0 | tem.s[i + 1, j - 1] != 0 | tem.s[i + 1, j] != 0 |
+                                tem.s[i + 1, j + 1] != 0))
                             {
-                                Node nst = new Node(node, st.Value.next(i, j, layel % 2 == 0), st.Key+Status.myTransmit(i) + Status.myTransmit(j));
+                                Node nst = new Node(node, tem.next( i, j, layel % 2 == 0), st.Key+Status.myTransmit(i) + Status.myTransmit(j));
                                 node.AddSub(nst);
                                 CreateTree(nst, (Int16)(layel - 1));
                                 //alpha-beta  3.30很可能不对。
@@ -483,6 +500,7 @@ namespace dllTest
                                     break;
                                 }
                             }
+                            node.data.s[(Int16)st.Value.x, (Int16)st.Value.y] = memo;
                         }
                         if (node.value != 0)
                         {
