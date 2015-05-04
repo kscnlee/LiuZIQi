@@ -159,6 +159,66 @@ namespace dllTest
                 }
         }
         /// <summary>
+        /// 通过估值得到有意义的第二个子的落法（第一个子是任意下的）
+        /// </summary>
+        /// <returns></returns>
+        public HashSet<Status> nextWithValuate(bool IsMe)
+        {
+            HashSet<Status> res=new HashSet<Status>();
+            int black = 0, white = 0;
+            Stack<Point> space=new Stack<Point>();
+            
+          //  int tem; int flag = 0; bool fff = true;
+            //横向估值己方
+            for (int i = 0; i < 19; i++)
+                for (int j = 0; j < 14; j++)
+                {
+                    for (int q = 0; q <= 5; q++)
+                        switch (s[i, j + q])
+                        {
+                            case 1: black++; break;
+                            case -1: white++; break;
+                            default: space.Push(new Point{x=i,y=j+q}); break;
+                        }
+                    if( (white>=4 && black==0) || (white==0&&black>=2) )
+                        while(space.Count!=0)
+                        {
+                            Point po=space.Pop();
+                            res.Add(this.next((Int16)po.x, (Int16)po.y, IsMe));//TODO:还应判断邻个有子时才能放。
+                        }
+                }
+            //for (int i = 0; i < 19; i++)
+            //    for (int j = 0; j < 14; j++)
+            //    {
+            //        for (int q = 5; q >= 0; q--)//判断这六个格中是否有白子
+            //        {
+            //            if (s[i, j + q] == -1)
+            //            {
+            //                flag = q;
+            //                fff = false;
+            //                break;
+            //            }
+            //        }
+            //        if (!fff) { j += flag; flag = 0; fff = true; continue; }//若有白子则跳过
+            //        tem = s[i, j] + s[i, j + 1] + s[i, j + 2] + s[i, j + 3] + s[i, j + 4] + s[i, j + 5];//计算黑子的数量
+            //        if (tem >= 2)
+            //        {
+            //            for (int m = j; m <= j + 5; m++)
+            //            {
+            //                if (s[i, m] == 0)
+            //                {
+            //                    if(
+            //                        (m==0 && s[i,m+1]!=0)
+            //                        ||(m==j+5 && s[i,m-1]!=0) 
+            //                        || (m!=0 && m!=j+5 && (s[i, m - 1] != 0 || s[i, m + 1] != 0))
+            //                        )
+            //                    res.Add(this.next((Int16)i, (Int16)m, true));
+            //                }
+            //            }
+            //        }
+            //    }
+        }
+        /// <summary>
         /// 对该局面评分
         /// </summary>
         /// <returns></returns>

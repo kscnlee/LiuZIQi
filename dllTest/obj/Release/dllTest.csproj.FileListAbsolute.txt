@@ -1,0 +1,5 @@
+E:\lee\dllTest\dllTest\bin\Release\dllTest.dll
+E:\lee\dllTest\dllTest\bin\Release\dllTest.pdb
+E:\lee\dllTest\dllTest\obj\Release\dllTest.csprojResolveAssemblyReference.cache
+E:\lee\dllTest\dllTest\obj\Release\dllTest.dll
+E:\lee\dllTest\dllTest\obj\Release\dllTest.pdb
