@@ -10,6 +10,11 @@ namespace dllTest
     {
         public int x { get; set; }
         public int y { get; set; }
+        public string step
+        {
+            get
+            { return Status.myTransmit(x) + Status.myTransmit(y); }
+        }
     }
     /// <summary>
     /// 表示一个棋盘局面
@@ -23,6 +28,15 @@ namespace dllTest
             for (int i = 0; i < 19; i++)
                 for (int j = 0; j < 19; j++)
                     s[i,j] = 0;
+        }
+        public Status clone()
+        {
+            Status next = new Status();
+            for (int i = 0; i < 19; i++)
+                for (int j = 0; j < 19; j++)
+                    next.s[i, j] = this.s[i, j];
+
+            return next;
         }
         /// <summary>
         /// 在控制台以矩阵方式显示当前局面
@@ -158,65 +172,102 @@ namespace dllTest
                     default: return 0;
                 }
         }
-        /// <summary>
-        /// 通过估值得到有意义的第二个子的落法（第一个子是任意下的）
-        /// </summary>
-        /// <returns></returns>
-        public HashSet<Status> nextWithValuate(bool IsMe)
-        {
-            HashSet<Status> res=new HashSet<Status>();
-            int black = 0, white = 0;
-            Stack<Point> space=new Stack<Point>();
+       
+        //public HashSet<Status> nextWithValuate(bool IsMe)
+        //{
+        //    HashSet<Status> res=new HashSet<Status>();
+        //    int black = 0, white = 0;
+        //    Stack<Point> space=new Stack<Point>();
             
-          //  int tem; int flag = 0; bool fff = true;
-            //横向估值己方
-            for (int i = 0; i < 19; i++)
-                for (int j = 0; j < 14; j++)
+        //  //  int tem; int flag = 0; bool fff = true;
+        //    //横向估值己方
+        //    for (int i = 0; i < 19; i++)
+        //        for (int j = 0; j < 14; j++)
+        //        {
+        //            for (int q = 0; q <= 5; q++)
+        //                switch (s[i, j + q])
+        //                {
+        //                    case 1: black++; break;
+        //                    case -1: white++; break;
+        //                    default: space.Push(new Point{x=i,y=j+q}); break;
+        //                }
+        //            if( (white>=4 && black==0) || (white==0&&black>=2) )
+        //                while(space.Count!=0)
+        //                {
+        //                    Point po=space.Pop();
+        //                    res.Add(this.next((Int16)po.x, (Int16)po.y, IsMe));//TODO:还应判断邻个有子时才能放。
+        //                }
+        //        }
+        //    //for (int i = 0; i < 19; i++)
+        //    //    for (int j = 0; j < 14; j++)
+        //    //    {
+        //    //        for (int q = 5; q >= 0; q--)//判断这六个格中是否有白子
+        //    //        {
+        //    //            if (s[i, j + q] == -1)
+        //    //            {
+        //    //                flag = q;
+        //    //                fff = false;
+        //    //                break;
+        //    //            }
+        //    //        }
+        //    //        if (!fff) { j += flag; flag = 0; fff = true; continue; }//若有白子则跳过
+        //    //        tem = s[i, j] + s[i, j + 1] + s[i, j + 2] + s[i, j + 3] + s[i, j + 4] + s[i, j + 5];//计算黑子的数量
+        //    //        if (tem >= 2)
+        //    //        {
+        //    //            for (int m = j; m <= j + 5; m++)
+        //    //            {
+        //    //                if (s[i, m] == 0)
+        //    //                {
+        //    //                    if(
+        //    //                        (m==0 && s[i,m+1]!=0)
+        //    //                        ||(m==j+5 && s[i,m-1]!=0) 
+        //    //                        || (m!=0 && m!=j+5 && (s[i, m - 1] != 0 || s[i, m + 1] != 0))
+        //    //                        )
+        //    //                    res.Add(this.next((Int16)i, (Int16)m, true));
+        //    //                }
+        //    //            }
+        //    //        }
+        //    //    }
+        //}
+        public List<Point> meaningfulNext()
+        {
+            List<Point> res = new List<Point>();
+            for(int i=0;i<=18;i++)
+                for (int j = 0; j <= 18; j++)
                 {
-                    for (int q = 0; q <= 5; q++)
-                        switch (s[i, j + q])
-                        {
-                            case 1: black++; break;
-                            case -1: white++; break;
-                            default: space.Push(new Point{x=i,y=j+q}); break;
-                        }
-                    if( (white>=4 && black==0) || (white==0&&black>=2) )
-                        while(space.Count!=0)
-                        {
-                            Point po=space.Pop();
-                            res.Add(this.next((Int16)po.x, (Int16)po.y, IsMe));//TODO:还应判断邻个有子时才能放。
-                        }
+                    if (s[i, j] == 0)//((i-2<0 || j-2<0)||(i-2>=0&&j-2>=0&&s[i-2,j-2]!=0))
+                    {
+                        if (i - 2 >= 0 && j - 2 >= 0 && s[i - 2, j - 2] != 0) { res.Add(new Point { x = i, y = j }); continue; }
+                        if (i - 2 >= 0 && j - 1 >= 0 && s[i - 2, j - 1] != 0) { res.Add(new Point { x = i, y = j }); continue; }
+                        if (i - 2 >= 0 && s[i - 2, j ] != 0) { res.Add(new Point { x = i, y = j }); continue; }
+                        if (i - 2 >= 0 && j + 2 <= 18 && s[i - 2, j + 2] != 0) { res.Add(new Point { x = i, y = j }); continue; }
+                        if (i - 2 >= 0 && j +1 <=18 && s[i - 2, j +1] != 0) { res.Add(new Point { x = i, y = j }); continue; }
+
+                        if (i - 1 >= 0 && j - 2 >= 0 && s[i - 1, j - 2] != 0) { res.Add(new Point { x = i, y = j }); continue; }
+                        if (i - 1 >= 0 && j - 1 >= 0 && s[i - 1, j - 1] != 0) { res.Add(new Point { x = i, y = j }); continue; }
+                        if (i - 1 >= 0 && s[i - 1, j] != 0) { res.Add(new Point { x = i, y = j }); continue; }
+                        if (i - 1 >= 0 && j + 2 <= 18 && s[i - 1, j + 2] != 0) { res.Add(new Point { x = i, y = j }); continue; }
+                        if (i - 1 >= 0 && j + 1 <= 18 && s[i - 1, j +1] != 0) { res.Add(new Point { x = i, y = j }); continue; }
+
+                        if ( j - 2 >= 0 && s[i , j - 2] != 0) { res.Add(new Point { x = i, y = j }); continue; }
+                        if ( j - 1 >= 0 && s[i, j - 1] != 0) { res.Add(new Point { x = i, y = j }); continue; }
+                        if ( j + 2 <=18 && s[i , j + 2] != 0) { res.Add(new Point { x = i, y = j }); continue; }
+                        if ( j +1<=18 && s[i , j +1] != 0) { res.Add(new Point { x = i, y = j }); continue; }
+
+                        if (i + 1 <=18 && j - 2 >= 0 && s[i + 1, j - 2] != 0) { res.Add(new Point { x = i, y = j }); continue; }
+                        if (i + 1 <= 18 && j - 1 >= 0 && s[i + 1, j - 1] != 0) { res.Add(new Point { x = i, y = j }); continue; }
+                        if (i + 1 <= 18 && s[i+ 1, j] != 0) { res.Add(new Point { x = i, y = j }); continue; }
+                        if (i + 1 <= 18 && j + 2 <= 18 && s[i+ 1, j + 2] != 0) { res.Add(new Point { x = i, y = j }); continue; }
+                        if (i + 1 <= 18 && j + 1 <= 18 && s[i + 1, j + 1] != 0) { res.Add(new Point { x = i, y = j }); continue; }
+
+                        if (i + 2 <=18 && j - 2 >= 0 && s[i + 2, j - 2] != 0) { res.Add(new Point { x = i, y = j }); continue; }
+                        if (i + 2 <= 18 && j - 1 >= 0 && s[i +2, j - 1] != 0) { res.Add(new Point { x = i, y = j }); continue; }
+                        if (i + 2 <= 18 && s[i + 2, j] != 0) { res.Add(new Point { x = i, y = j }); continue; }
+                        if (i + 2 <= 18 && j + 2 <= 18 && s[i + 2, j + 2] != 0) { res.Add(new Point { x = i, y = j }); continue; }
+                        if (i + 2 <= 18 && j + 1 <= 18 && s[i + 2, j + 1] != 0) { res.Add(new Point { x = i, y = j }); continue; }
+                    }
                 }
-            //for (int i = 0; i < 19; i++)
-            //    for (int j = 0; j < 14; j++)
-            //    {
-            //        for (int q = 5; q >= 0; q--)//判断这六个格中是否有白子
-            //        {
-            //            if (s[i, j + q] == -1)
-            //            {
-            //                flag = q;
-            //                fff = false;
-            //                break;
-            //            }
-            //        }
-            //        if (!fff) { j += flag; flag = 0; fff = true; continue; }//若有白子则跳过
-            //        tem = s[i, j] + s[i, j + 1] + s[i, j + 2] + s[i, j + 3] + s[i, j + 4] + s[i, j + 5];//计算黑子的数量
-            //        if (tem >= 2)
-            //        {
-            //            for (int m = j; m <= j + 5; m++)
-            //            {
-            //                if (s[i, m] == 0)
-            //                {
-            //                    if(
-            //                        (m==0 && s[i,m+1]!=0)
-            //                        ||(m==j+5 && s[i,m-1]!=0) 
-            //                        || (m!=0 && m!=j+5 && (s[i, m - 1] != 0 || s[i, m + 1] != 0))
-            //                        )
-            //                    res.Add(this.next((Int16)i, (Int16)m, true));
-            //                }
-            //            }
-            //        }
-            //    }
+            return res;
         }
         /// <summary>
         /// 对该局面评分
@@ -456,6 +507,10 @@ namespace dllTest
         {
             this.s[Transmit(mov[0]), Transmit(mov[1])] = IsMe ? (sbyte)1 :(sbyte)( -1);
         }
+        public void AddPiece(Point p, bool IsMe)
+        {
+            this.s[p.x,p.y]=IsMe ? (sbyte)1 :(sbyte)( -1);
+        }
         /// <summary>
         /// 比较两个棋局的不同,用于表示走步
         /// </summary>
@@ -537,7 +592,30 @@ namespace dllTest
             }
             else
             {
-                foreach (var st in node.data.nextStep3(layel % 2 == 0))//node.data.nextStep(layel % 2 == 0))
+                Point[] arr = node.data.meaningfulNext().ToArray();//TODO:每次落子后将落子点从列表中删除，再根据落子添加新点，无需每次重新扫描。5、11
+                for (int i = 0; i < arr.Length; i++)
+                {
+                    for (int j = i + 1; j < arr.Length; j++)
+                    {
+                        Status st = node.data.clone();
+                        st.AddPiece(arr[i], layel % 2 == 0);
+                        st.AddPiece(arr[j], layel % 2 == 0);
+                        Node nst = new Node(node, st, arr[i].step+arr[j].step);
+                        node.AddSub(nst);
+                        CreateTree(nst, (Int16)(layel - 1));
+                        if (node.value != 0)
+                        {
+                            node.subNodes.Clear();
+                            break;
+                        }
+                    }
+                    if (node.value != 0)
+                    {
+                        node.subNodes.Clear();
+                        break;
+                    }
+                }
+                /*foreach (var st in node.data.nextStep3(layel % 2 == 0))//node.data.nextStep(layel % 2 == 0))
                 {
                     for (Int16 i = 1; i < 18; i++)
                     {
@@ -573,11 +651,10 @@ namespace dllTest
                         node.subNodes.Clear();
                         break;
                     }
-                }
+                }*/
                 if (node.value == 0)
                 {
                     //预测两步
-
                     var tem = node.subNodes.OrderBy(e => e.value);
                     Node temnode;
                     if (layel % 2 == 0) { node.value = tem.Last().value; temnode = tem.Last(); }
