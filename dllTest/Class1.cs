@@ -6,10 +6,16 @@ using System.Threading.Tasks;
 
 namespace dllTest
 {
-    public class Point
+    public class Point:IEquatable<Point>
     {
         public int x { get; set; }
         public int y { get; set; }
+        public  bool Equals(Point other)
+        {
+            if (other.x == this.x && other.y == this.y)
+                return true;
+            else return false;
+        }
         public string step
         {
             get
@@ -267,7 +273,7 @@ namespace dllTest
                         if (i + 2 <= 18 && j + 1 <= 18 && s[i + 2, j + 1] != 0) { res.Add(new Point { x = i, y = j }); continue; }
                     }
                 }
-            return res;
+            return res.Distinct().ToList();
         }
         /// <summary>
         /// 对该局面评分
@@ -472,6 +478,32 @@ namespace dllTest
                 default: return "";
             }
         }
+        public static  sbyte myTransmit(char c)
+        {
+            switch (c)
+            {
+                case 'A': return 0;
+                case 'B': return 1;
+                case 'C': return 2;
+                case 'D': return 3;
+                case 'E': return 4;
+                case 'F': return 5;
+                case 'G': return 6;
+                case 'H': return 7;
+                case 'I': return 8;
+                case 'J': return 9;
+                case 'K': return 10;
+                case 'L': return 11;
+                case 'M': return 12;
+                case 'N': return 13;
+                case 'O': return 14;
+                case 'P': return 15;
+                case 'Q': return 16;
+                case 'R': return 17;
+                case 'S': return 18;
+                default: return -1;
+            }
+        }
         private sbyte Transmit(char c)
         {
             switch (c)
@@ -570,10 +602,137 @@ namespace dllTest
     }
     public class Move
     {
+        static public  List<Point> meaningful;
         public Node root;//当前局面
         public Move(Status st)
         {
             root = new Node(null, st,"");
+            if (meaningful == null)
+                meaningful = st.meaningfulNext();
+        }
+        public void changeMeaningfulTemp(Point p, List<Point> meaningful)
+        {
+            if (meaningful.Contains(p)) meaningful.Remove(p);
+            int i = p.x; int j = p.y;
+            if (i - 2 >= 0 && j - 2 >= 0 && root.data.s[i - 2, j - 2] == 0 && !meaningful.Contains(new Point { x = i - 2, y = j - 2 }))
+            { meaningful.Add(new Point { x = i - 2, y = j - 2 }); }
+            if (i - 2 >= 0 && j - 1 >= 0 && root.data.s[i - 2, j - 1] == 0 && !meaningful.Contains(new Point { x = i - 2, y = j - 1 }))
+            { meaningful.Add(new Point { x = i - 2, y = j - 1 }); }
+            if (i - 2 >= 0 && root.data.s[i - 2, j] == 0 && !meaningful.Contains(new Point { x = i - 2, y = j }))
+            { meaningful.Add(new Point { x = i - 2, y = j }); }
+            if (i - 2 >= 0 && j + 2 <= 18 && root.data.s[i - 2, j + 2] == 0 && !meaningful.Contains(new Point { x = i - 2, y = j + 2 }))
+            { meaningful.Add(new Point { x = i - 2, y = j + 2 }); }
+            if (i - 2 >= 0 && j + 1 <= 18 && root.data.s[i - 2, j + 1] == 0 && !meaningful.Contains(new Point { x = i - 2, y = j + 1 }))
+            { meaningful.Add(new Point { x = i - 2, y = j + 1 }); }
+
+            if (i - 1 >= 0 && j - 2 >= 0 && root.data.s[i - 1, j - 2] == 0 && !meaningful.Contains(new Point { x = i - 1, y = j - 2 }))
+            { meaningful.Add(new Point { x = i - 1, y = j - 2 }); }
+            if (i - 1 >= 0 && j - 1 >= 0 && root.data.s[i - 1, j - 1] == 0 && !meaningful.Contains(new Point { x = i - 1, y = j - 1 }))
+            { meaningful.Add(new Point { x = i - 1, y = j - 1 }); }
+            if (i - 1 >= 0 && root.data.s[i - 1, j] == 0 && !meaningful.Contains(new Point { x = i - 1, y = j }))
+            { meaningful.Add(new Point { x = i - 1, y = j }); }
+            if (i - 1 >= 0 && j + 2 <= 18 && root.data.s[i - 1, j + 2] == 0 && !meaningful.Contains(new Point { x = i - 1, y = j + 2 }))
+            { meaningful.Add(new Point { x = i - 1, y = j + 2 }); }
+            if (i - 1 >= 0 && j + 1 <= 18 && root.data.s[i - 1, j + 1] == 0 && !meaningful.Contains(new Point { x = i - 1, y = j + 1 }))
+            { meaningful.Add(new Point { x = i - 1, y = j + 1 }); }
+
+            if (j - 2 >= 0 && root.data.s[i, j - 2] == 0 && !meaningful.Contains(new Point { x = i, y = j - 2 }))
+            { meaningful.Add(new Point { x = i, y = j - 2 }); }
+            if (j - 1 >= 0 && root.data.s[i, j - 1] == 0 && !meaningful.Contains(new Point { x = i, y = j - 1 }))
+            { meaningful.Add(new Point { x = i, y = j - 1 }); }
+            if (j + 2 <= 18 && root.data.s[i, j + 2] == 0 && !meaningful.Contains(new Point { x = i, y = j + 2 }))
+            { meaningful.Add(new Point { x = i, y = j + 2 }); }
+            if (j + 1 <= 18 && root.data.s[i, j + 1] == 0 && !meaningful.Contains(new Point { x = i, y = j + 1 }))
+            { meaningful.Add(new Point { x = i, y = j + 1 }); }
+
+            if (i + 1 <= 18 && j - 2 >= 0 && root.data.s[i + 1, j - 2] == 0 && !meaningful.Contains(new Point { x = i + 1, y = j - 2 }))
+            { meaningful.Add(new Point { x = i + 1, y = j - 2 }); }
+            if (i + 1 <= 18 && j - 1 >= 0 && root.data.s[i + 1, j - 1] == 0 && !meaningful.Contains(new Point { x = i + 1, y = j - 1 }))
+            { meaningful.Add(new Point { x = i + 1, y = j - 1 }); }
+            if (i + 1 <= 18 && root.data.s[i + 1, j] == 0 && !meaningful.Contains(new Point { x = i + 1, y = j }))
+            { meaningful.Add(new Point { x = i + 1, y = j }); }
+            if (i + 1 <= 18 && j + 2 <= 18 && root.data.s[i + 1, j + 2] == 0 && !meaningful.Contains(new Point { x = i + 1, y = j + 2 }))
+            { meaningful.Add(new Point { x = i + 1, y = j + 2 }); }
+            if (i + 1 <= 18 && j + 1 <= 18 && root.data.s[i + 1, j + 1] == 0 && !meaningful.Contains(new Point { x = i + 1, y = j + 1 }))
+            { meaningful.Add(new Point { x = i + 1, y = j + 1 }); }
+
+            if (i + 2 <= 18 && j - 2 >= 0 && root.data.s[i + 2, j - 2] == 0 && !meaningful.Contains(new Point { x = i + 2, y = j - 2 }))
+            { meaningful.Add(new Point { x = i + 2, y = j - 2 }); }
+            if (i + 2 <= 18 && j - 1 >= 0 && root.data.s[i + 2, j - 1] == 0 && !meaningful.Contains(new Point { x = i + 2, y = j - 1 }))
+            { meaningful.Add(new Point { x = i + 2, y = j - 1 }); }
+            if (i + 2 <= 18 && root.data.s[i + 2, j] == 0 && !meaningful.Contains(new Point { x = i + 2, y = j }))
+            { meaningful.Add(new Point { x = i + 2, y = j }); }
+            if (i + 2 <= 18 && j + 2 <= 18 && root.data.s[i + 2, j + 2] == 0 && !meaningful.Contains(new Point { x = i + 2, y = j + 2 }))
+            { meaningful.Add(new Point { x = i + 2, y = j + 2 }); }
+            if (i + 2 <= 18 && j + 1 <= 18 && root.data.s[i + 2, j + 1] == 0 && !meaningful.Contains(new Point { x = i + 2, y = j + 1 }))
+            { meaningful.Add(new Point { x = i + 2, y = j + 1 }); }
+        }
+        /// <summary>
+        /// 根据落子更新有意义的可落子空格
+        /// </summary>
+        /// <param name="p">落子</param>
+         public void changeMeaningful(Point p)
+        {
+            if (meaningful.Contains(p)) meaningful.Remove(p);
+            int i = p.x; int j = p.y;
+            if (i - 2 >= 0 && j - 2 >= 0 && root.data.s[i - 2, j - 2] == 0 && !meaningful.Contains(new Point { x = i - 2, y = j - 2 }))
+            { meaningful.Add(new Point { x = i - 2, y = j - 2 }); }
+            if (i - 2 >= 0 && j - 1 >= 0 && root.data.s[i - 2, j - 1] == 0 && !meaningful.Contains(new Point { x = i - 2, y = j - 1 }))
+            { meaningful.Add(new Point { x = i - 2, y = j - 1 }); }
+            if (i - 2 >= 0 && root.data.s[i - 2, j] == 0 && !meaningful.Contains(new Point { x = i - 2, y = j  }))
+            { meaningful.Add(new Point { x = i - 2, y = j }); }
+            if (i - 2 >= 0 && j + 2 <= 18 && root.data.s[i - 2, j + 2] == 0 && !meaningful.Contains(new Point { x = i - 2, y = j+ 2 }))
+            { meaningful.Add(new Point { x = i - 2, y = j + 2 }); }
+            if (i - 2 >= 0 && j + 1 <= 18 && root.data.s[i - 2, j + 1] == 0 && !meaningful.Contains(new Point { x = i - 2, y = j +1 }))
+            { meaningful.Add(new Point { x = i - 2, y = j + 1 }); }
+
+            if (i - 1 >= 0 && j - 2 >= 0 && root.data.s[i - 1, j - 2] == 0 && !meaningful.Contains(new Point { x = i - 1, y = j - 2 }))
+            { meaningful.Add(new Point { x = i - 1, y = j - 2 }); }
+            if (i - 1 >= 0 && j - 1 >= 0 && root.data.s[i - 1, j - 1] == 0 && !meaningful.Contains(new Point { x = i - 1, y = j - 1 }))
+            { meaningful.Add(new Point { x = i - 1, y = j - 1 }); }
+            if (i - 1 >= 0 && root.data.s[i - 1, j] == 0 && !meaningful.Contains(new Point { x = i - 1, y = j  }))
+            { meaningful.Add(new Point { x = i - 1, y = j }); }
+            if (i - 1 >= 0 && j + 2 <= 18 && root.data.s[i - 1, j + 2] == 0 && !meaningful.Contains(new Point { x = i - 1, y = j+ 2 }))
+            { meaningful.Add(new Point { x = i - 1, y = j + 2 }); }
+            if (i - 1 >= 0 && j + 1 <= 18 && root.data.s[i - 1, j + 1] == 0 && !meaningful.Contains(new Point { x = i - 1, y = j+1 }))
+            { meaningful.Add(new Point { x = i - 1, y = j + 1 }); }
+
+            if (j - 2 >= 0 && root.data.s[i, j - 2] == 0 && !meaningful.Contains(new Point { x = i , y = j - 2 }))
+            { meaningful.Add(new Point { x = i, y = j - 2 }); }
+            if (j - 1 >= 0 && root.data.s[i, j - 1] == 0 && !meaningful.Contains(new Point { x = i , y = j -1 }))
+            { meaningful.Add(new Point { x = i, y = j - 1 }); }
+            if (j + 2 <= 18 && root.data.s[i, j + 2] == 0 && !meaningful.Contains(new Point { x = i, y = j+ 2 }))
+            { meaningful.Add(new Point { x = i, y = j + 2 }); }
+            if (j + 1 <= 18 && root.data.s[i, j + 1] == 0 && !meaningful.Contains(new Point { x = i, y = j +1 }))
+            { meaningful.Add(new Point { x = i, y = j + 1 }); }
+
+            if (i + 1 <= 18 && j - 2 >= 0 && root.data.s[i + 1, j - 2] == 0 && !meaningful.Contains(new Point { x = i +1, y = j - 2 }))
+            { meaningful.Add(new Point { x = i + 1, y = j - 2 }); }
+            if (i + 1 <= 18 && j - 1 >= 0 && root.data.s[i + 1, j - 1] == 0 && !meaningful.Contains(new Point { x = i +1, y = j - 1 }))
+            { meaningful.Add(new Point { x = i + 1, y = j - 1 }); }
+            if (i + 1 <= 18 && root.data.s[i + 1, j] == 0 && !meaningful.Contains(new Point { x = i +1, y = j  }))
+            { meaningful.Add(new Point { x = i + 1, y = j }); }
+            if (i + 1 <= 18 && j + 2 <= 18 && root.data.s[i + 1, j + 2] == 0 && !meaningful.Contains(new Point { x = i +1, y = j + 2 }))
+            { meaningful.Add(new Point { x = i + 1, y = j + 2 }); }
+            if (i + 1 <= 18 && j + 1 <= 18 && root.data.s[i + 1, j + 1] == 0 && !meaningful.Contains(new Point { x = i +1, y = j +1 }))
+            { meaningful.Add(new Point { x = i + 1, y = j + 1 }); }
+
+            if (i + 2 <= 18 && j - 2 >= 0 && root.data.s[i + 2, j - 2] == 0 && !meaningful.Contains(new Point { x = i + 2, y = j - 2 }))
+            { meaningful.Add(new Point { x = i + 2, y = j - 2 }); }
+            if (i + 2 <= 18 && j - 1 >= 0 && root.data.s[i + 2, j - 1] == 0 && !meaningful.Contains(new Point { x = i + 2, y = j - 1 }))
+            { meaningful.Add(new Point { x = i + 2, y = j - 1 }); }
+            if (i + 2 <= 18 && root.data.s[i + 2, j] == 0 && !meaningful.Contains(new Point { x = i+ 2, y = j  }))
+            { meaningful.Add(new Point { x = i + 2, y = j }); }
+            if (i + 2 <= 18 && j + 2 <= 18 && root.data.s[i + 2, j + 2] == 0 && !meaningful.Contains(new Point { x = i + 2, y = j + 2 }))
+            { meaningful.Add(new Point { x = i + 2, y = j + 2 }); }
+            if (i + 2 <= 18 && j + 1 <= 18 && root.data.s[i + 2, j + 1] == 0 && !meaningful.Contains(new Point { x = i + 2, y = j +1 }))
+            { meaningful.Add(new Point { x = i + 2, y = j + 1 }); }
+        }
+
+          public void changeMeaningful(string step)
+        {
+            changeMeaningful(new Point { x = Status.myTransmit(step[0]), y = Status.myTransmit(step[1]) });
+            changeMeaningful(new Point { x = Status.myTransmit(step[2]), y = Status.myTransmit(step[3]) });
         }
         /// <summary>
         /// 创建博弈树
@@ -592,7 +751,9 @@ namespace dllTest
             }
             else
             {
-                Point[] arr = node.data.meaningfulNext().ToArray();//TODO:每次落子后将落子点从列表中删除，再根据落子添加新点，无需每次重新扫描。5、11
+                
+                Point[] arr = meaningful.ToArray();//TODO:每次落子后将落子点从列表中删除，再根据落子添加新点，无需每次重新扫描。5、11  || 已实现 5、18
+                List<Point> tempClone = arr.ToList();
                 for (int i = 0; i < arr.Length; i++)
                 {
                     for (int j = i + 1; j < arr.Length; j++)
@@ -600,6 +761,8 @@ namespace dllTest
                         Status st = node.data.clone();
                         st.AddPiece(arr[i], layel % 2 == 0);
                         st.AddPiece(arr[j], layel % 2 == 0);
+                        this.changeMeaningfulTemp(arr[i], tempClone);
+                        this.changeMeaningfulTemp(arr[j], tempClone);
                         Node nst = new Node(node, st, arr[i].step+arr[j].step);
                         node.AddSub(nst);
                         CreateTree(nst, (Int16)(layel - 1));
@@ -615,43 +778,7 @@ namespace dllTest
                         break;
                     }
                 }
-                /*foreach (var st in node.data.nextStep3(layel % 2 == 0))//node.data.nextStep(layel % 2 == 0))
-                {
-                    for (Int16 i = 1; i < 18; i++)
-                    {
-                        for (Int16 j = 1; j < 18; j++)
-                        {
-                            sbyte memo = node.data.s[(Int16)st.Value.x, (Int16)st.Value.y];
-                            node.data.s[(Int16)st.Value.x, (Int16)st.Value.y] = layel % 2 == 0 ? (SByte)1 : (SByte)(-1);
-                            Status tem = node.data; //node.data.next((Int16)st.Value.x, (Int16)st.Value.y, layel % 2 == 0);
-                            if (tem.s[i, j] == 0 && (tem.s[i - 1, j - 1] != 0 | tem.s[i - 1, j] != 0 | tem.s[i - 1, j + 1] != 0 |
-                                tem.s[i, j - 1] != 0 | tem.s[i, j + 1] != 0 | tem.s[i + 1, j - 1] != 0 | tem.s[i + 1, j] != 0 |
-                                tem.s[i + 1, j + 1] != 0))
-                            {
-                                Node nst = new Node(node, tem.next( i, j, layel % 2 == 0), st.Key+Status.myTransmit(i) + Status.myTransmit(j));
-                                node.AddSub(nst);
-                                CreateTree(nst, (Int16)(layel - 1));
-                                //alpha-beta  3.30很可能不对。
-                                if (node.value != 0)
-                                {
-                                    node.subNodes.Clear();
-                                    break;
-                                }
-                            }
-                            node.data.s[(Int16)st.Value.x, (Int16)st.Value.y] = memo;
-                        }
-                        if (node.value != 0)
-                        {
-                            node.subNodes.Clear();
-                            break;
-                        }
-                    }
-                    if (node.value != 0)
-                    {
-                        node.subNodes.Clear();
-                        break;
-                    }
-                }*/
+              
                 if (node.value == 0)
                 {
                     //预测两步
@@ -701,6 +828,7 @@ namespace dllTest
                         if (msg.EndsWith("black"))
                         {
                             st.s[10, 10] = 1;
+                            Move move = new Move(st);
                             return "move KK@@";
                         }
                         else return "name ouc";
@@ -717,15 +845,19 @@ namespace dllTest
                         }
 
                         move = new Move(st);
+                        move.changeMeaningful(countStep);
                         move.CreateTree(move.root, 2);
                         Node rn = move.root.subNodes.First();//(e => e.value == move.root.value);
                         string myStep=rn.MakeStep();
                         st.AddPiece(myStep.Substring(0, 2), true);
                         st.AddPiece(myStep.Substring(2), true);
+
+                        move = new Move(st);
+                        move.changeMeaningful(myStep);
                         return "move " + myStep+"\n" + rn.data.dis() + "\n" + rn.subNodes.First().data.dis();
                         
                     }
-                case "end": return "name oucAI";
+                case "end": { Move.meaningful = null; return "name oucAI"; }
                 case "nam": return "name oucAI";
                 default: return "name oucAI";
             }
